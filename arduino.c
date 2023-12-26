@@ -1,64 +1,63 @@
+#include <ESP8266WiFi.h>
+#include <FirebaseArduino.h>
 
-#include<ESP8266WiFi.h>
-#include<FirebaseArduino.h>
 #define WIFI_SSID "***ARMY***"
 #define WIFI_PASS "greatindia"
 #define FB_HOST "evsproj-636ac.firebaseio.com"
 #define FB_AUTH "TgF6QISwOn7o0YP4zRR1EtZ0wGsUKJBcLrUoSH5n"
 
+const int D1_PIN = D1;
+const int D2_PIN = D2;
+
 void setup() {
-	
-	//setup code: which will required to run once for initial connection to firebase
-	
-	Serial.begin(9600);
-	pinMode(D1, OUTPUT);
-	pinMode(D2, INPUT);
-	WiFi.begin(WIFI_SSID,WIFI_PASS);
+  Serial.begin(9600);
+  pinMode(D1_PIN, OUTPUT);
+  pinMode(D2_PIN, INPUT);
 
-	Serial.print("Connecting.");
+  connectToWiFi();
 
-	while(WiFi.status()!=WL_CONNECTED)
-	{
-		Serial.print(".");
-	}
-
-	Serial.println("Connected to:");
-	Serial.print(WiFi.localIP());
-	Firebase.begin(FB_HOST, FB_AUTH);
+  Serial.println("Connected to:");
+  Serial.print(WiFi.localIP());
+  Firebase.begin(FB_HOST, FB_AUTH);
 }
 
-long.duration,inches,cm;
+void connectToWiFi() {
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.print("Connecting.");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.println("WiFi Connected!");
+}
 
 void loop() {
-	
-	//Main code which will be repeating continuosly
-	
-	digitalWrite(D1, LOW);
-        delayMicroseconds(2);
-	digitalWrite(D1, HIGH);
-	delayMicroseconds(5);
-	digitalWrite(D1, LOW);
-	duration = pulseln(D2, HIGH);
-	inches = microsecondsToInches(duration);
-	cm = microsecondsToInches(duration);
+  digitalWrite(D1_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(D1_PIN, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(D1_PIN, LOW);
 
-	Serial.print(inches);
-	Serial.print("in, ");
-	Serial.print(cm);
-	Serial.print("cm");
-	Serial.println();
+  long duration = pulseIn(D2_PIN, HIGH);
+  long inches = microsecondsToInches(duration);
+  long cm = microsecondsToCentimeters(duration);
 
-	Firebase.setInt("dust", inches);
-	delay(100);
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
 
+  Firebase.setInt("dust", inches);
+  delay(100);
 }
 
-long microsecondsToInches(long microseconds){
-	
-	return microseconds / 74 / 2;
+long microsecondsToInches(long microseconds) {
+  return microseconds / 74 / 2;
 }
 
-long microsecondsToCentimeters(long microseconds){
-
-	return microseconds / 29 / 2;
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
 }
